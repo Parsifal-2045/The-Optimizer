@@ -4,7 +4,6 @@ import json
 import logging
 import pickle
 import numpy as np
-from numba import njit
 
 
 class CustomFormatter(logging.Formatter):
@@ -125,7 +124,6 @@ class FileManager:
             return pickle.load(f)
 
 
-@njit
 def get_dominated(particles, pareto_lenght):
     dominated_particles = np.full(len(particles), False)
     for i, pi in enumerate(particles):
