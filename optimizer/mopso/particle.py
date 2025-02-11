@@ -37,8 +37,10 @@ class Particle:
     def update_position(self, lower_bound, upper_bound):
         new_position = np.empty_like(self.position)
         for i in range(len(lower_bound)):
-            if type(lower_bound[i]) == int or type(lower_bound[i]) == bool:
-                new_position[i] = np.round(self.position[i] + self.velocity[i])
+            if type(lower_bound[i]) == int:
+                new_position[i] = int(np.round(self.position[i] + self.velocity[i]))
+            elif type(lower_bound[i]) == bool:
+                new_position[i] = bool(np.round(self.position[i] + self.velocity[i]))
             else:
                 new_position[i] = self.position[i] + self.velocity[i]
         self.position = np.clip(new_position, lower_bound, upper_bound)
