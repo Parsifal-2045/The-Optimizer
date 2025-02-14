@@ -49,13 +49,17 @@ class MOPSO(Optimizer):
                  inertia_weight=0.5, cognitive_coefficient=1, social_coefficient=1,
                  initial_particles_position='random', default_point=None,
                  exploring_particles=False, topology='random',
-                 max_pareto_lenght=-1):
+                 max_pareto_lenght=-1, param_names=None, metric_names=None):
         self.objective = objective
         self.num_particles = num_particles
         self.particles = []
         self.iteration = 0
         self.pareto_front = []
         self.max_pareto_lenght = max_pareto_lenght
+        if param_names and metric_names:
+            self.header = param_names + metric_names
+        else: 
+            self.header = None
         if FileManager.loading_enabled:
             try:
                 self.load_state()
@@ -186,7 +190,8 @@ class MOPSO(Optimizer):
 
         FileManager.save_csv([np.concatenate([particle.position, np.ravel(particle.fitness)])
                              for particle in self.pareto_front],
-                             'checkpoint/pareto_front.csv')
+                             'checkpoint/pareto_front.csv',
+                             header=self.header)
 
     def load_state(self):
         Logger.debug("Loading checkpoint")
@@ -201,7 +206,8 @@ class MOPSO(Optimizer):
             for p_id, particle in enumerate(self.particles)]
         FileManager.save_csv([np.concatenate([particle.position, np.ravel(
             particle.fitness)]) for particle in self.particles],
-            'history/iteration' + str(self.iteration) + '.csv')
+            'history/iteration' + str(self.iteration) + '.csv',
+            header=self.header)
 
         crowding_distances = self.update_pareto_front()
 
@@ -218,7 +224,8 @@ class MOPSO(Optimizer):
 
     def optimize(self, num_iterations=100, max_iterations_without_improvement=None):
         Logger.info(f"Starting MOPSO optimization from iteration {self.iteration} to {num_iterations}")
-        for _ in range(self.iteration, num_iterations):
+        for i, _ in enumerate(range(self.iteration, num_iterations)):
+            Logger.info(f"Starting MOPSO iteration {i}")
             self.step(max_iterations_without_improvement)
             self.save_state()
             self.export_state()

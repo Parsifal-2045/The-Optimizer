@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 import json
 import logging
 import pickle
@@ -56,7 +57,7 @@ class FileManager:
     working_dir = "tmp"
 
     @classmethod
-    def save_csv(cls, csv_list, filename="file.csv"):
+    def save_csv(cls, csv_list, filename="file.csv", header=None):
         if not cls.saving_enabled:
             Logger.debug("Saving is disabled.")
             return
@@ -66,10 +67,11 @@ class FileManager:
             Logger.debug("Creating folder '%s'",folder)
             os.makedirs(folder)
         Logger.debug("Saving to '%s'",full_path)
-        np.savetxt(full_path,
-                   csv_list,
-                   fmt='%.18f',
-                   delimiter=',')
+        with open(full_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            if header: writer.writerow(header)
+            for row in csv_list: 
+                writer.writerow(["%.18f" % value for value in row])
 
     @classmethod
     def save_json(cls, dictionary, filename="file.json"):
